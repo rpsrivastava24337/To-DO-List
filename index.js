@@ -41,7 +41,7 @@ app.get("/", function (req, res) {
 
 app.post("/", function (req, res) {
 
-  let item = req.body.newItem;
+  let item = req.body.item;
 
 
   if (req.body.List === "Work") {
