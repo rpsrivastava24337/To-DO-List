@@ -17,19 +17,26 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
-  name:"Welcome to ToDo-List"
+  name: "Welcome to ToDo-List"
 })
 
 const Item2 = new Item({
-  name:"create new item +  "
+  name: "create new item +  "
 })
-const Item3 = new Item({ 
-  name:"and hit to <--- delete"
+const Item3 = new Item({
+  name: "and hit to <--- delete"
 })
 
-const defaultItems = [Item1,Item2,Item3]
+const defaultItems = [Item1, Item2, Item3]
+async function additem(){
+  await Item.insertMany(defaultItems)
+}
 
-await Item.insertMany(defaultItems)
+
+
+let a = await Item.find({})
+
+
 
 
 //////////////////////////////////////////expressssssssssssssss/////////////////////
@@ -62,10 +69,19 @@ app.get("/", function (req, res) {
   //   month: "long",
   // };
   // var day = today.toLocaleDateString("en-us", options);
-
   // var day = date
 
-  res.render("list", { listTitle: "Today", newListItem: items });
+
+  if (a === 0) {
+    additem()
+    res.redirect("/")
+  }
+  else {
+    res.render("list", { listTitle: "Today", newListItem: a });
+  }
+
+
+
 });
 
 app.post("/", function (req, res) {
