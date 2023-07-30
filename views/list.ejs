@@ -20,16 +20,14 @@
 
     <div class="box">
 
-        <% for(x in newListItem){%>
+        <% newListItem.forEach(function(items){%>
             <div class="item">
                 <input type="checkbox">
                 <p>
-                    <%=newListItem[x]%>
+                    <%=items.name%>
                 </p>
             </div>
-
-            <% } %>
-
+                <%  })%>
 
                 <form action="/" method="post">
                     <input type="text" name="item" id="" autofocus required placeholder="New item" autocomplete="off">
