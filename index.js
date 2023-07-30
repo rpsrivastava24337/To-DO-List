@@ -5,15 +5,44 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+////////////////////////////////////////mongooooooooooooooooooos///////////////////////
+import mongoose from "mongoose";
+mongoose.connect("mongodb://127.0.0.1:27017/todolistDB", { useNewUrlParser: true })
 
+
+const itemSchema = {
+  name: String,
+
+};
+const Item = mongoose.model("Item", itemSchema);
+
+const Item1 = new Item({
+  name:"Welcome to ToDo-List"
+})
+
+const Item2 = new Item({
+  name:"create new item +  "
+})
+const Item3 = new Item({ 
+  name:"and hit to <--- delete"
+})
+
+const defaultItems = [Item1,Item2,Item3]
+
+await Item.insertMany(defaultItems)
+
+
+//////////////////////////////////////////expressssssssssssssss/////////////////////
 import express from "express";
 const app = express();
-
+////////////////////////////////////////bodyparserrrrrrrrrrrrr//////////////////////
 import bodyParser from "body-parser";
 
 
-import { getdate } from "./date.js";
-const date = getdate()
+// import { getdate } from "./date.js";
+// const date = getdate()
+
+
 // import https from "https";
 
 var items = [];
@@ -34,9 +63,9 @@ app.get("/", function (req, res) {
   // };
   // var day = today.toLocaleDateString("en-us", options);
 
-  var day = date
+  // var day = date
 
-  res.render("list", { listTitle: day, newListItem: items });
+  res.render("list", { listTitle: "Today", newListItem: items });
 });
 
 app.post("/", function (req, res) {
