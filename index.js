@@ -35,14 +35,14 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
-  name: "Welcome to ToDo-List"
+  name: "1"
 })
 
 const Item2 = new Item({
-  name: "create new item +  "
+  name: "2"
 })
 const Item3 = new Item({
-  name: "and hit to <--- delete"
+  name: "3"
 })
 
 const defaultItems = [Item1, Item2, Item3]
@@ -78,6 +78,14 @@ app.post("/", async function (req, res) {
   item.save()
   res.redirect('/')
 });
+
+
+
+app.post("/delete",async function(req,res){
+const checkedItemId = req.body.checkbox
+await Item.deleteOne({ _id:checkedItemId });
+res.redirect("/")
+})
 // app.get("/work", function (req, res) {
 //   res.render("list", { listTitle: "Work", newListItem: workItem });
 // })
