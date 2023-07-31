@@ -5,6 +5,24 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+
+
+//////////////////////////////////////////expressssssssssssssss/////////////////////
+import express from "express";
+const app = express();
+////////////////////////////////////////bodyparserrrrrrrrrrrrr//////////////////////
+import bodyParser from "body-parser";
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.set("view engine", "ejs");
+
+
+// import { getdate } from "./date.js";
+// const date = getdate()
+
+
+
 ////////////////////////////////////////mongooooooooooooooooooos///////////////////////
 import mongoose from "mongoose";
 mongoose.connect("mongodb://127.0.0.1:27017/todolistDB", { useNewUrlParser: true })
@@ -28,88 +46,41 @@ const Item3 = new Item({
 })
 
 const defaultItems = [Item1, Item2, Item3]
-async function additem(){
-  await Item.insertMany(defaultItems)
+
+async function additem() {
+  
 }
 
+  
 
+/////////
+// var items = [];
+// var workItem = []
 
-let a = await Item.find({})
-
-
-
-
-//////////////////////////////////////////expressssssssssssssss/////////////////////
-import express from "express";
-const app = express();
-////////////////////////////////////////bodyparserrrrrrrrrrrrr//////////////////////
-import bodyParser from "body-parser";
-
-
-// import { getdate } from "./date.js";
-// const date = getdate()
-
-
-// import https from "https";
-
-var items = [];
-var workItem = []
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.set("view engine", "ejs");
-
-
-app.get("/", function (req, res) {
-
-  // var today = new Date();
-  // var options = {
-  //   weekday: "long",
-  //   day: "numeric",
-  //   month: "long",
-  // };
-  // var day = today.toLocaleDateString("en-us", options);
-  // var day = date
-
-
-  if (a === 0) {
-    additem()
-    res.redirect("/")
-  }
-  else {
-    res.render("list", { listTitle: "Today", newListItem: a });
-  }
-
-
-
-});
-
-app.post("/", function (req, res) {
-
-  let item = req.body.item;
-
-
-  if (req.body.List === "Work") {
-    workItem.push(item)
-    res.redirect("/work");
+app.get("/",async function (req, res) {
+  let allitem = await Item.find({})
+  if (allitem.length === 0) {
+  await Item.insertMany(defaultItems)
+  res.redirect("/")
   }
   else {
 
-    items.push(item);
-    res.redirect("/");
-
+    res.render("list", { listTitle: "Today", newListItem: allitem });
   }
-
-
-
-
 });
+app.post("/", async function (req, res) {
 
+  let itemname = req.body.item;
 
-app.get("/work", function (req, res) {
-  res.render("list", { listTitle: "Work", newListItem: workItem });
-
-})
+  const item = new Item({
+    name: itemname
+  })
+  item.save()
+  res.redirect('/')
+});
+// app.get("/work", function (req, res) {
+//   res.render("list", { listTitle: "Work", newListItem: workItem });
+// })
 
 // app.post("/work", function (req, res) {
 //   let item = req.body.newItem
