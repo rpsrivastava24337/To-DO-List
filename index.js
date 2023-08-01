@@ -25,6 +25,7 @@ app.set("view engine", "ejs");
 
 ////////////////////////////////////////mongooooooooooooooooooos///////////////////////
 import mongoose from "mongoose";
+//import  render  from "ejs";
 mongoose.connect("mongodb://127.0.0.1:27017/todolistDB", { useNewUrlParser: true })
 
 
@@ -47,21 +48,23 @@ const Item3 = new Item({
 
 const defaultItems = [Item1, Item2, Item3]
 
-async function additem() {
-  
+const listSchema = {
+  name: String, 
+  items: [itemSchema]
 }
+const List = mongoose.model("List", listSchema);
 
-  
+
 
 /////////
 // var items = [];
 // var workItem = []
 
-app.get("/",async function (req, res) {
+app.get("/", async function (req, res) {
   let allitem = await Item.find({})
   if (allitem.length === 0) {
-  await Item.insertMany(defaultItems)
-  res.redirect("/")
+    await Item.insertMany(defaultItems)
+    res.redirect("/")
   }
   else {
 
@@ -71,20 +74,26 @@ app.get("/",async function (req, res) {
 app.post("/", async function (req, res) {
 
   let itemname = req.body.item;
-
+  let listName = req.body.List;
   const item = new Item({
     name: itemname
   })
-  item.save()
+  if(listName=="Today"){ // for root route
+      item.save()
   res.redirect('/')
+  }
+  else{
+  let nameOfList = await List.findOne({name:listName}) // if other than root route then push item.
+  nameOfList.items.push(item)
+  nameOfList.save()
+  res.redirect("/" + listName)
+  }
 });
 
-
-
-app.post("/delete",async function(req,res){
-const checkedItemId = req.body.checkbox
-await Item.deleteOne({ _id:checkedItemId });
-res.redirect("/")
+app.post("/delete", async function (req, res) {
+  const checkedItemId = req.body.checkbox
+  await Item.deleteOne({ _id: checkedItemId });
+  res.redirect("/")
 })
 // app.get("/work", function (req, res) {
 //   res.render("list", { listTitle: "Work", newListItem: workItem });
@@ -96,11 +105,25 @@ res.redirect("/")
 //   res.redirect("/work")
 // })
 
-
+app.get("/:customlistname", async function (req, res) {// custom list input through user
+  const customname = req.params.customlistname;
+  let matchitem = await List.findOne({ name: customname })
+  
+      if (!matchitem) { // if there is no custom name match then creat one
+    const list = new List({
+      name: customname,
+      items: defaultItems
+    });
+    list.save()
+    res.redirect("/" + customname)
+  }
+  else { // else just show  it
+    res.render("list", { listTitle: customname, newListItem: matchitem.items })
+  }
+})
 app.get("/about", function (req, res) {
   res.render("about")
 })
-
 app.listen(3000, function () {
   console.log("server start at 3000 localhost");
 });
