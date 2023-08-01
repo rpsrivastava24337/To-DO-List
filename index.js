@@ -5,8 +5,27 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+import _ from "lodash";
+
+//////////////////////////////////////////expressssssssssssssss/////////////////////
+import express from "express";
+const app = express();
+////////////////////////////////////////bodyparserrrrrrrrrrrrr//////////////////////
+import bodyParser from "body-parser";
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.set("view engine", "ejs");
+
+
+// import { getdate } from "./date.js";
+// const date = getdate()
+
+
+
 ////////////////////////////////////////mongooooooooooooooooooos///////////////////////
 import mongoose from "mongoose";
+//import  render  from "ejs";
 mongoose.connect("mongodb://127.0.0.1:27017/todolistDB", { useNewUrlParser: true })
 
 
@@ -17,83 +36,69 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
-  name:"Welcome to ToDo-List"
+  name: "Welcome ,add items below" 
 })
 
-const Item2 = new Item({
-  name:"create new item +  "
-})
-const Item3 = new Item({ 
-  name:"and hit to <--- delete"
-})
+const defaultItems = [Item1]
 
-const defaultItems = [Item1,Item2,Item3]
-
-await Item.insertMany(defaultItems)
+const listSchema = {
+  name: String,
+  items: [itemSchema]
+}
+const List = mongoose.model("List", listSchema);
 
 
-//////////////////////////////////////////expressssssssssssssss/////////////////////
-import express from "express";
-const app = express();
-////////////////////////////////////////bodyparserrrrrrrrrrrrr//////////////////////
-import bodyParser from "body-parser";
 
+/////////
+// var items = [];
+// var workItem = []
 
-// import { getdate } from "./date.js";
-// const date = getdate()
-
-
-// import https from "https";
-
-var items = [];
-var workItem = []
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.set("view engine", "ejs");
-
-
-app.get("/", function (req, res) {
-
-  // var today = new Date();
-  // var options = {
-  //   weekday: "long",
-  //   day: "numeric",
-  //   month: "long",
-  // };
-  // var day = today.toLocaleDateString("en-us", options);
-
-  // var day = date
-
-  res.render("list", { listTitle: "Today", newListItem: items });
-});
-
-app.post("/", function (req, res) {
-
-  let item = req.body.item;
-
-
-  if (req.body.List === "Work") {
-    workItem.push(item)
-    res.redirect("/work");
+app.get("/", async function (req, res) {
+  let allitem = await Item.find({})
+  if (allitem.length === 0) {
+    await Item.insertMany(defaultItems)
+    res.redirect("/")
   }
   else {
 
-    items.push(item);
-    res.redirect("/");
-
+    res.render("list", { listTitle: "Today", newListItem: allitem });
   }
+});
+app.post("/", async function (req, res) {
 
-
-
-
+  let itemname = req.body.item;
+  let listName = req.body.List;
+  const item = new Item({
+    name: itemname
+  })
+  if (listName == "Today") { // for root route
+    item.save()
+    res.redirect('/')
+  }
+  else {
+    let nameOfList = await List.findOne({ name: listName }) // if other than root route then push item.
+    nameOfList.items.push(item)
+    nameOfList.save()
+    res.redirect("/" + listName)
+  }
 });
 
-
-app.get("/work", function (req, res) {
-  res.render("list", { listTitle: "Work", newListItem: workItem });
+app.post("/delete", async function (req, res) {
+  const checkedItemId = req.body.checkbox
+  const listname = req.body.listName
+  if (listname === "Today") {
+    await Item.deleteOne({ _id: checkedItemId });
+    res.redirect("/")
+  }
+  else {
+    await List.findOneAndUpdate({ name: listname },{ $pull: { items: { _id: checkedItemId } } })
+    res.redirect("/" + listname)
+  }
 
 })
+// app.get("/work", function (req, res) {
+//   res.render("list", { listTitle: "Work", newListItem: workItem });
+// })
 
 // app.post("/work", function (req, res) {
 //   let item = req.body.newItem
@@ -101,11 +106,25 @@ app.get("/work", function (req, res) {
 //   res.redirect("/work")
 // })
 
+app.get("/:customlistname", async function (req, res) {// custom list input through user
+  const customname = _.capitalize(req.params.customlistname)
+  let matchitem = await List.findOne({ name: customname })
 
+  if (!matchitem) { // if there is no custom name match then creat one
+    const list = new List({
+      name: customname,
+      items: defaultItems
+    });
+    list.save()
+    res.redirect("/" + customname)
+  }
+  else { // else just show  it
+    res.render("list", { listTitle: customname, newListItem: matchitem.items })
+  }
+})
 app.get("/about", function (req, res) {
   res.render("about")
 })
-
 app.listen(3000, function () {
   console.log("server start at 3000 localhost");
 });

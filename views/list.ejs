@@ -21,22 +21,27 @@
     <div class="box">
 
         <% newListItem.forEach(function(items){%>
-            <div class="item">
-                <input type="checkbox">
-                <p>
-                    <%=items.name%>
-                </p>
-            </div>
-                <%  })%>
+
+            <form action="/delete" method="post">
+                <div class="item">
+                    <input type="checkbox" class="largecheckbox" name="checkbox" value="<%= items._id %>" onchange="this.form.submit()"></input>
+                 
+                    <p>
+                        <%=items.name%>
+                    </p>
+                </div>
+<input type="hidden" name="listName" value="<%=listTitle %>">
+            </form>
+            <% })%>
 
                 <form action="/" method="post">
                     <input type="text" name="item" id="" autofocus required placeholder="New item" autocomplete="off">
                     <button type="submit" name="List" value="<%= listTitle %>">+</button>
                 </form>
     </div>
-    <h3>
+    <h2>
         R.P.S
-    </h3>
+    </h2>
 </body>
 
 </html>
