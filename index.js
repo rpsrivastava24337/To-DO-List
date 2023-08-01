@@ -5,7 +5,7 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
+import _ from "lodash";
 
 //////////////////////////////////////////expressssssssssssssss/////////////////////
 import express from "express";
@@ -36,20 +36,13 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
-  name: "1"
+  name: "Welcome ,add items below" 
 })
 
-const Item2 = new Item({
-  name: "2"
-})
-const Item3 = new Item({
-  name: "3"
-})
-
-const defaultItems = [Item1, Item2, Item3]
+const defaultItems = [Item1]
 
 const listSchema = {
-  name: String, 
+  name: String,
   items: [itemSchema]
 }
 const List = mongoose.model("List", listSchema);
@@ -78,22 +71,30 @@ app.post("/", async function (req, res) {
   const item = new Item({
     name: itemname
   })
-  if(listName=="Today"){ // for root route
-      item.save()
-  res.redirect('/')
+  if (listName == "Today") { // for root route
+    item.save()
+    res.redirect('/')
   }
-  else{
-  let nameOfList = await List.findOne({name:listName}) // if other than root route then push item.
-  nameOfList.items.push(item)
-  nameOfList.save()
-  res.redirect("/" + listName)
+  else {
+    let nameOfList = await List.findOne({ name: listName }) // if other than root route then push item.
+    nameOfList.items.push(item)
+    nameOfList.save()
+    res.redirect("/" + listName)
   }
 });
 
 app.post("/delete", async function (req, res) {
   const checkedItemId = req.body.checkbox
-  await Item.deleteOne({ _id: checkedItemId });
-  res.redirect("/")
+  const listname = req.body.listName
+  if (listname === "Today") {
+    await Item.deleteOne({ _id: checkedItemId });
+    res.redirect("/")
+  }
+  else {
+    await List.findOneAndUpdate({ name: listname },{ $pull: { items: { _id: checkedItemId } } })
+    res.redirect("/" + listname)
+  }
+
 })
 // app.get("/work", function (req, res) {
 //   res.render("list", { listTitle: "Work", newListItem: workItem });
@@ -106,10 +107,10 @@ app.post("/delete", async function (req, res) {
 // })
 
 app.get("/:customlistname", async function (req, res) {// custom list input through user
-  const customname = req.params.customlistname;
+  const customname = _.capitalize(req.params.customlistname)
   let matchitem = await List.findOne({ name: customname })
-  
-      if (!matchitem) { // if there is no custom name match then creat one
+
+  if (!matchitem) { // if there is no custom name match then creat one
     const list = new List({
       name: customname,
       items: defaultItems
