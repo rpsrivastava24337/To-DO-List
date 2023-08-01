@@ -30,13 +30,13 @@
                         <%=items.name%>
                     </p>
                 </div>
-
+<input type="hidden" name="listName" value="<%=listTitle %>">
             </form>
             <% })%>
 
                 <form action="/" method="post">
                     <input type="text" name="item" id="" autofocus required placeholder="New item" autocomplete="off">
-                    <button type="submit" name="List" value="<%= listTitle %>">👍</button>
+                    <button type="submit" name="List" value="<%= listTitle %>">+</button>
                 </form>
     </div>
     <h2>
