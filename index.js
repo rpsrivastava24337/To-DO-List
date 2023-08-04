@@ -36,7 +36,7 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
-  name: "Welcome ,add items below" 
+  name: "Welcome" 
 })
 
 const defaultItems = [Item1]
