@@ -26,7 +26,7 @@ app.set("view engine", "ejs");
 ////////////////////////////////////////mongooooooooooooooooooos///////////////////////
 import mongoose from "mongoose";
 //import  render  from "ejs";
-mongoose.connect("mongodb://127.0.0.1:27017/todolistDB", { useNewUrlParser: true })
+mongoose.connect("mongodb+srv://admin-rps:rps24337@cluster0.nplzrd4.mongodb.net/todolistDB", { useNewUrlParser: true })
 
 
 const itemSchema = {
@@ -36,7 +36,7 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
-  name: "Welcome" 
+  name: "Welcome"
 })
 
 const defaultItems = [Item1]
@@ -91,7 +91,7 @@ app.post("/delete", async function (req, res) {
     res.redirect("/")
   }
   else {
-    await List.findOneAndUpdate({ name: listname },{ $pull: { items: { _id: checkedItemId } } })
+    await List.findOneAndUpdate({ name: listname }, { $pull: { items: { _id: checkedItemId } } })
     res.redirect("/" + listname)
   }
 
@@ -125,6 +125,13 @@ app.get("/:customlistname", async function (req, res) {// custom list input thro
 app.get("/about", function (req, res) {
   res.render("about")
 })
-app.listen(3000, function () {
+
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+
+
+app.listen(port, function () {
   console.log("server start at 3000 localhost");
 });
