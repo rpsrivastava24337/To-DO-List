@@ -36,10 +36,12 @@ const itemSchema = {
 const Item = mongoose.model("Item", itemSchema);
 
 const Item1 = new Item({
+  name: "Hiii"
+})
+const Item2 = new Item({
   name: "Welcome"
 })
-
-const defaultItems = [Item1]
+const defaultItems = [Item1,Item2]
 
 const listSchema = {
   name: String,
@@ -126,12 +128,6 @@ app.get("/about", function (req, res) {
   res.render("about")
 })
 
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 3000;
-}
-
-
-app.listen(port, function () {
+app.listen(3000, function () {
   console.log("server start at 3000 localhost");
 });
